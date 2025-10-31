@@ -2,7 +2,9 @@
 import { ref, onMounted, watch } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import DraggableModal from '../components/DraggableeModal.vue'
 
+const showModal = ref(false)
 const sidebarCollapsed = ref(false)
 let map
 
@@ -59,12 +61,47 @@ onMounted(() => {
 
     if (sector.status == "high" || sector.status == "medium") {
       const center = polygon.getBounds().getCenter()
+      const customIcon = L.divIcon({
+        html: `
+          <div style="
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            position: relative;
+          ">
+            <img src="https://cdn-icons-png.flaticon.com/512/47/47225.png" 
+                style="width: 30px; height: 30px;">
+            <div style="
+              position: absolute;
+              bottom: -10px;
+              left: 50%;
+              transform: translateX(-50%);
+              width: 0; 
+              height: 0; 
+              border-left: 6px solid transparent;
+              border-right: 6px solid transparent;
+              border-top: 10px solid white;
+            "></div>
+          </div>
+        `,
+        className: "", // evita estilos por defecto de Leaflet
+        iconSize: [48, 58], // tamaño total (incluye la “aguja”)
+        iconAnchor: [24, 58], // la punta de la aguja será la referencia en el mapa
+        popupAnchor: [0, -58]
+      });
 
       const marker = L.marker(center, {
-        title: `Intervencion necesaria en ${sector.name}`
+        title: `Intervencion necesaria en ${sector.name}`,
+        icon: customIcon
       })
         .addTo(map)
         .bindPopup(`<b>${sector.name}</b><br>Intervencion necesaria`)
+        .on('click', () => handlePolygonClick(sector.id))
     }
   })
 })
@@ -285,17 +322,22 @@ const stopDrag = () => {
 
         <div class="butom-report d-flex justify-content-end">
           <button type="button" class="btn btn-success d-flex align-items-center me-2"
-            style="background-color: #00796B;">
+            style="background-color: #00796B;" @click="showModal = true">
             Acciones
             <i class="bi bi-arrow-right ms-2"></i>
           </button>
-          <button type="button" class="btn btn-success d-flex align-items-center" style="background-color: #00796B;">
+          <button type="button" class="btn btn-success d-flex align-items-center" style="background-color: #00796B;"
+            @click="showModal = true">
             Histograma
             <i class="bi bi-arrow-right ms-2"></i>
           </button>
         </div>
       </div>
     </div>
+
+    <DraggableModal v-model:visible="showModal" title="Información del Sector" :sector=selectedSector>
+      <p>Aquí puedes mostrar datos del sector, gráficos o botones de acción.</p>
+    </DraggableModal>
 
     <!-- Contenedor del mapa -->
     <div class="MapContainer col p-4 ps-6" :class="{ expanded: sidebarCollapsed }">
