@@ -57,7 +57,7 @@ onMounted(() => {
 
     polygons[sector.id] = polygon
 
-    const active_nebulizacion = nebulizacion.find(n => n.id_sector === sector.id)
+    //const active_nebulizacion = nebulizacion.find(n => n.id_sector === sector.id)
 
     if (sector.status == "high" || sector.status == "medium") {
       const center = polygon.getBounds().getCenter()
@@ -74,15 +74,15 @@ onMounted(() => {
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
             position: relative;
           ">
-            <img src="https://cdn-icons-png.flaticon.com/512/47/47225.png" 
+            <img src="https://cdn-icons-png.flaticon.com/512/47/47225.png"
                 style="width: 30px; height: 30px;">
             <div style="
               position: absolute;
               bottom: -10px;
               left: 50%;
               transform: translateX(-50%);
-              width: 0; 
-              height: 0; 
+              width: 0;
+              height: 0;
               border-left: 6px solid transparent;
               border-right: 6px solid transparent;
               border-top: 10px solid white;
@@ -95,7 +95,7 @@ onMounted(() => {
         popupAnchor: [0, -58]
       });
 
-      const marker = L.marker(center, {
+      L.marker(center, {
         title: `Intervencion necesaria en ${sector.name}`,
         icon: customIcon
       })
@@ -149,10 +149,11 @@ watch(sidebarCollapsed, () => {
 // Modal
 const modalVisible = ref(false)
 const selectedSector = ref({})
+const tipeModal = ref({})
 const sectorLarvario = ref({})
 const sectorOvitrampas = ref({})
 const UltimaNebulizacion = ref({})
-const modalPosition = ref({ top: 150, left: 500 })
+const modalPosition = ref({ top: 140, left: 330 })
 
 let isDragging = false
 let dragOffset = { x: 0, y: 0 }
@@ -216,49 +217,75 @@ const stopDrag = () => {
 <template>
   <div class="Container row m-0 p-0">
     <!-- Boton activar de Barra lateral -->
-    <button class="btn btn-light rounded-0 p-3 btn-collapse rounded-end"
+    <button class="btn btn-light rounded-0 btn-collapse rounded-end"
       :class="{ active: !sidebarCollapsed, 'shadow-sm': sidebarCollapsed }"
       @click="sidebarCollapsed = !sidebarCollapsed">
       {{ sidebarCollapsed ? '⮞' : '⮜' }}
     </button>
 
-    <!-- Barra lateeral -->
-    <div class="barraLateral bg-light text-white d-flex flex-column m-0 p-0 position-relative"
-      :class="{ collapsed: sidebarCollapsed }">
-      <div v-if="!sidebarCollapsed" style="height: 100vh; margin-top: 5px;" class="">
+    <!-- Barra lateral -->
+    <div
+      class="barraLateral bg-light d-flex flex-column position-relative m-0 p-0"
+      :class="{ collapsed: sidebarCollapsed }"
+      style="height: calc(100vh - 70px);"
+    >
+      <div v-if="!sidebarCollapsed" class="d-flex flex-column h-100">
 
-        <!-- Titulo de lista de sectores -->
-        <div class="d-flex align-items-center bg-success justify-content-center mb-3 border-end border-white"
-          style="height: 62px;">
-          <h3 class="text-white fw-bold "> Sectores </h3>
+        <!-- Título -->
+        <div class="d-flex align-items-center justify-content-center bg-success border-end border-white flex-shrink-0"
+          style="height: 40px;">
+          <h5 class="text-white fw-bold mb-0">Sectores</h5>
         </div>
 
-        <!-- Lista de sectores -->
-        <div class="bg-ligth pt-2 px-4">
-          <ul class="list-group shadow">
-            <li v-for="sector in sectores" :key="sector.id" class="list-group-item list-group-item-action"
-              :class="sector.id == selectedSector.id ? 'bg-success text-white' : ''" @click="abrirModal(sector)">
-              <div class="row">
-                <span class="col-10"> {{ sector.name }} </span>
-                <i v-if="sector.status == 'low'" class="bi me-0 col-2"
-                  :class="sector.id == selectedSector.id ? 'text-white bi-check-circle-fill' : 'bi-check-circle text-success'"></i>
-                <i v-if="sector.status == 'medium'" class="bi me-0 col-2"
-                  :class="sector.id == selectedSector.id ? 'bi-exclamation-circle-fill text-white' : 'bi-exclamation-circle text-warning'"></i>
-                <i v-if="sector.status == 'high'" class="bi me-0 col-2"
-                  :class="sector.id == selectedSector.id ? 'text-white bi-exclamation-triangle-fill' : 'bi-exclamation-triangle text-danger'"></i>
-              </div>
-            </li>
-          </ul>
-        </div>
+        <div style="height: calc(100% - 40px);">
+          <!-- Lista de sectores -->
+          <div class="hide-overflow flex-grow-1 overflow-auto px-3 pt-3" style="max-height: 80%">
+            <ul class="list-group">
+              <li
+                v-for="sector in sectores"
+                :key="sector.id"
+                class="list-group-item list-group-item-action mb-1 rounded"
+                :class="sector.id == selectedSector.id ? 'bg-success text-white' : ''"
+                @click="abrirModal(sector)"
+              >
+                <div class="d-flex align-items-center justify-content-between">
+                  <span>{{ sector.name }}</span>
+                  <i
+                    v-if="sector.status == 'low'"
+                    class="bi"
+                    :class="sector.id == selectedSector.id ? 'text-white bi-check-circle-fill' : 'bi-check-circle text-success'"
+                  ></i>
+                  <i
+                    v-if="sector.status == 'medium'"
+                    class="bi"
+                    :class="sector.id == selectedSector.id ? 'text-white bi-exclamation-circle-fill' : 'bi-exclamation-circle text-warning'"
+                  ></i>
+                  <i
+                    v-if="sector.status == 'high'"
+                    class="bi"
+                    :class="sector.id == selectedSector.id ? 'text-white bi-exclamation-triangle-fill' : 'bi-exclamation-triangle text-danger'"
+                  ></i>
+                </div>
+              </li>
+            </ul>
+          </div>
 
-        <div class="pt-2 p-4 position-absolute w-100" style="bottom: 77px;">
-          <div class="bg-white rounded p-4 shadow">
-            <button type="button" class="btn btn-success bg-success">
-              <i class="bi bi-download fs-3"></i>
-            </button>
+          <!-- Botón inferior -->
+          <div class="p-3" style="max-height: 20%">
+            <div class="bg-white rounded p-3 shadow-sm d-flex justify-content-center">
+              <button type="button" class="btn btn-success">
+                <i class="bi bi-download fs-4"></i>
+              </button>
+            </div>
           </div>
         </div>
+
       </div>
+    </div>
+
+    <!-- Contenedor del mapa -->
+    <div class="MapContainer col p-4 ps-6" :class="{ expanded: sidebarCollapsed }">
+      <div id="map" class="shadow rounded"></div>
     </div>
 
     <!-- Ventana modal draggable -->
@@ -322,12 +349,12 @@ const stopDrag = () => {
 
         <div class="butom-report d-flex justify-content-end">
           <button type="button" class="btn btn-success d-flex align-items-center me-2"
-            style="background-color: #00796B;" @click="showModal = true">
+            style="background-color: #00796B;" @click="showModal = true, tipeModal.value = 'acciones'">
             Acciones
             <i class="bi bi-arrow-right ms-2"></i>
           </button>
           <button type="button" class="btn btn-success d-flex align-items-center" style="background-color: #00796B;"
-            @click="showModal = true">
+            @click="showModal = true,tipeModal.value = 'histograma'">
             Histograma
             <i class="bi bi-arrow-right ms-2"></i>
           </button>
@@ -335,14 +362,10 @@ const stopDrag = () => {
       </div>
     </div>
 
-    <DraggableModal v-model:visible="showModal" title="Información del Sector" :sector=selectedSector>
+    <DraggableModal v-model:visible="showModal" :sector=selectedSector :tipe=tipeModal.value>
       <p>Aquí puedes mostrar datos del sector, gráficos o botones de acción.</p>
     </DraggableModal>
 
-    <!-- Contenedor del mapa -->
-    <div class="MapContainer col p-4 ps-6" :class="{ expanded: sidebarCollapsed }">
-      <div id="map" class="shadow rounded"></div>
-    </div>
   </div>
 </template>
 
@@ -363,25 +386,26 @@ const stopDrag = () => {
 /* Boton de la barra lateral */
 .btn-collapse {
   position: fixed;
-  width: 50px;
+  width: 40px;
+  height: 40px;
   z-index: 100;
-  top: 75px;
+  top: 70px;
   left: 0;
   background-color: #00796B;
   border: none;
   color: white;
-  font-size: 20px;
+  font-size: 15px;
   font-weight: bold;
   transition: left 0.10s ease;
 }
 
 .btn-collapse.active {
-  left: 360px;
+  left: 220px;
 }
 
 /* Barra lateral */
 .barraLateral {
-  width: 400px;
+  width: 250px;
   transition: width 0.10s ease;
 }
 
@@ -435,5 +459,14 @@ const stopDrag = () => {
   color: white;
   font-weight: bold;
   cursor: pointer;
+}
+
+.hide-overflow {
+  overflow-y: auto; /* mantiene el scroll funcional */
+  scrollbar-width: none; /* 🔹 para Firefox */
+}
+
+.hide-overflow::-webkit-scrollbar {
+  display: none; /* 🔹 para Chrome, Edge y Safari */
 }
 </style>

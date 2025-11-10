@@ -4,12 +4,48 @@
         <!-- Header arrastrable -->
         <div
             class="modal-header bg-success rounded-top-3 text-white d-flex justify-content-between align-items-center p-2">
-            <h5 class="m-0">{{ title }}</h5>
-            <button @click="close" class="btn btn-sm btn-light">✕</button>
+            <h5 class="m-0 ps-2">{{ tipe.toLocaleLowerCase() + ' ' + sector.name  }}</h5>
+            <button @click="close" class="btn-close p-2"></button>
         </div>
 
         <!-- Contenido -->
-        <div class="modal-body p-3">{{ sector }}
+        <div class="modal-body p-2">
+          <div class="actions" v-if="tipe == 'acciones'">
+            ewe
+          </div>
+
+          <div class="actions row m-0 p-0" v-if="tipe == 'histograma'">
+            <div class="col-12 m-0 p-0 mb-2">
+              <div class="row m-0 p-0">
+
+                <div class="col-4 m-0 p-1">
+                  <div class="rounded border border-terciary p-2">
+                    col-1
+                  </div>
+                </div>
+
+                <div class="col-4 m-0 p-1">
+                  <div class="rounded border border-terciary p-2">
+                    col-1
+                  </div>
+                </div>
+
+                <div class="col-4 m-0 p-1">
+                  <div class="rounded border border-terciary p-2">
+                    col-1
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="col-12 m-0 p-1">
+              <div class="rounded border border-terciary m-0 p-2">
+                we
+              </div>
+            </div>
+          </div>
+
         </div>
     </div>
 </template>
@@ -19,16 +55,16 @@ import { ref } from 'vue'
 
 // Props reutilizables
 defineProps({
-    title: { type: String, default: 'Modal' },
     visible: { type: Boolean, default: false },
-    sector: { type: Object, default: () => ({}) }
+    sector: { type: Object, default: () => ({}) },
+    tipe: {type: String, default:''}
 })
 
 // Emit para cerrar el modal
 const emit = defineEmits(['update:visible'])
 
 // Posición inicial del modal
-const position = ref({ top: 150, left: 200 })
+const position = ref({ top: 560, left: 330 })
 let isDragging = false
 let dragOffset = { x: 0, y: 0 }
 
@@ -78,5 +114,12 @@ const close = () => {
     user-select: none;
     z-index: 2000;
     /* Mantiene el modal por encima del contenido sin bloquearlo */
+}
+
+.btn-close {
+  border: none;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
 }
 </style>
